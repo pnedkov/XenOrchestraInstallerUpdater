@@ -131,6 +131,14 @@ function InstallDependenciesDebian {
 	apt-get update >/dev/null
 	echo "done"
 
+	# install gnupg on Debian 10
+	if [[ -z $(which gnupg) && $OSVERSION -eq 10 ]]; then
+		echo
+		echo -n "Installing gnupg..."
+		apt-get install -y gnupg >/dev/null
+		echo "done"
+	fi
+
 	# Install apt-transport-https and ca-certificates because of yarn https repo url
 	echo
 	echo -n "Installing apt-transport-https and ca-certificates packages to support https repos..."
@@ -170,6 +178,13 @@ function InstallDependenciesDebian {
 		echo
 		echo -n "Installing node.js..."
 		curl -sL https://deb.nodesource.com/setup_8.x | bash - >/dev/null
+		if [[ $OSVERSION -eq 10 ]]; then
+			cat >/etc/apt/preferences.d/nodesource <<-EOF
+				Package: *
+				Pin: origin deb.nodesource.com
+				Pin-Priority: 600
+			EOF
+		fi
 		apt-get install -y nodejs >/dev/null
 		echo "done"
 	fi
@@ -607,8 +622,8 @@ function CheckOS {
 	elif [[ -f /etc/os-release ]]; then
 		OSVERSION=$(grep ^VERSION_ID /etc/os-release | cut -d'=' -f2 | grep -Eo "[0-9]{1,2}" | head -1)
 		OSNAME=$(grep ^NAME /etc/os-release | cut -d'=' -f2 | sed 's/"//g' | awk '{print $1}')
-		if [[ $OSNAME == "Debian" ]] && [[ ! $OSVERSION =~ ^(8|9)$ ]]; then
-			echo "Only Debian 8/9 supported"
+		if [[ $OSNAME == "Debian" ]] && [[ ! $OSVERSION =~ ^(8|9|10)$ ]]; then
+			echo "Only Debian 8/9/10 supported"
 			exit 0
 		elif [[ $OSNAME == "Ubuntu" ]] && [[ ! $OSVERSION =~ ^(16|18)$ ]]; then
 			echo "Only Ubuntu 16/18 supported"
