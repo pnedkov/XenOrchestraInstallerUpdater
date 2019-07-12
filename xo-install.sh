@@ -161,19 +161,7 @@ function InstallDependenciesDebian {
 		echo "done"
 	fi
 
-	# only install yarn repo and package if not found
-	if [[ -z $(dpkg -l | grep yarn) ]]; then
-		echo
-		echo -n "Installing yarn..."
-		curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - >/dev/null
-		echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list >/dev/null
-		apt-get update >/dev/null
-		apt-get install -y yarn >/dev/null
-		echo "done"
-	fi
-
-
-	# only run automated node install if package not found
+        # only run automated node install if package not found
 	if [[ -z $(dpkg -l | grep node) ]] || [[ -z $(which npm) ]]; then
 		echo
 		echo -n "Installing node.js..."
@@ -189,6 +177,16 @@ function InstallDependenciesDebian {
 		echo "done"
 	fi
 
+	# only install yarn repo and package if not found
+	if [[ -z $(dpkg -l | grep yarn) ]]; then
+		echo
+		echo -n "Installing yarn..."
+		curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - >/dev/null
+		echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list >/dev/null
+		apt-get update >/dev/null
+		apt-get install -y yarn >/dev/null
+		echo "done"
+	fi
 
 	# install packages
 	echo
